@@ -37,3 +37,32 @@ func TestGlyphsAreDistinctExceptNone(t *testing.T) {
 		seen[st.Glyph()] = st
 	}
 }
+
+func TestUnicodeDecidesTheBorderAndNotTheColour(t *testing.T) {
+	unicode := s99term.NewStyles(true)
+	ascii := s99term.NewStyles(false)
+
+	if unicode.Border.Top == ascii.Border.Top {
+		t.Fatal("unicode and ascii styles share a border")
+	}
+	if ascii.Border.Top != "-" {
+		t.Errorf("ascii border top = %q, want %q", ascii.Border.Top, "-")
+	}
+	if unicode.Palette.Good != ascii.Palette.Good {
+		t.Error("the charset axis changed a colour, which is the colour axis")
+	}
+}
+
+// A Polish catalog has longer words than an English one, so the column widens
+// rather than pushing the label out of line.
+func TestStatusWidthFollowsTheWidestWord(t *testing.T) {
+	english := s99term.Words{s99term.StatusOK: "ok", s99term.StatusWarning: "warning"}
+	polish := s99term.Words{s99term.StatusOK: "ok", s99term.StatusWarning: "ostrzezenie"}
+
+	if got := s99term.StatusWidth(english); got != 12 {
+		t.Errorf("StatusWidth(english) = %d, want the 12 floor", got)
+	}
+	if got, want := s99term.StatusWidth(polish), 3+1+11+1; got != want {
+		t.Errorf("StatusWidth(polish) = %d, want %d", got, want)
+	}
+}
