@@ -3,6 +3,7 @@
 package s99term_test
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/charmbracelet/x/ansi"
@@ -64,5 +65,39 @@ func TestStatusWidthFollowsTheWidestWord(t *testing.T) {
 	}
 	if got, want := s99term.StatusWidth(polish), 3+1+11+1; got != want {
 		t.Errorf("StatusWidth(polish) = %d, want %d", got, want)
+	}
+}
+
+func TestLineIsGlyphWordAndLabelInFixedColumns(t *testing.T) {
+	r := s99term.NewRenderer(s99term.NewStyles(false), s99term.Words{
+		s99term.StatusOK:      "ok",
+		s99term.StatusFailed:  "failed",
+		s99term.StatusWarning: "warning",
+	})
+
+	ok := ansi.Strip(r.Line(s99term.StatusOK, "built pl", s99term.F("keys", "412")))
+	failed := ansi.Strip(r.Line(s99term.StatusFailed, "built pl"))
+
+	if want := "[+] ok       built pl  keys=412"; ok != want {
+		t.Errorf("Line ok = %q, want %q", ok, want)
+	}
+	if got, want := strings.Index(ok, "built"), strings.Index(failed, "built"); got != want {
+		t.Errorf("label starts at %d for ok and %d for failed; columns must agree", got, want)
+	}
+}
+
+// A value with a newline would break the one-line redraw, which clears one line.
+func TestFieldsQuoteWhitespaceAndQuotes(t *testing.T) {
+	r := s99term.NewRenderer(s99term.NewStyles(false), s99term.Words{})
+
+	for _, c := range []struct{ in, want string }{
+		{"412", "n=412"},
+		{"two words", `n="two words"`},
+		{"line\nbreak", `n="line\nbreak"`},
+		{`say "hi"`, `n="say \"hi\""`},
+	} {
+		if got := ansi.Strip(r.Fields(s99term.F("n", c.in))); got != c.want {
+			t.Errorf("Fields(%q) = %q, want %q", c.in, got, c.want)
+		}
 	}
 }
