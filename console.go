@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/charmbracelet/colorprofile"
+	"github.com/charmbracelet/x/ansi"
 	"github.com/charmbracelet/x/term"
 )
 
@@ -42,6 +43,7 @@ type Console struct {
 	animate  bool
 	charset  bool
 	width    int
+	step     *Step
 	now      func() time.Time
 }
 
@@ -113,7 +115,8 @@ func (c *Console) Charset() bool { return c.charset }
 
 func (c *Console) Profile() colorprofile.Profile { return c.profile }
 
-// Print writes one already-rendered block, downsampled for the stream.
+// Print writes one already-rendered block, downsampled for the stream. A live
+// step's frame is erased first and redrawn after, so the block is never torn.
 func (c *Console) Print(block string) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -121,10 +124,16 @@ func (c *Console) Print(block string) {
 }
 
 func (c *Console) printLocked(block string) {
+	if c.step != nil {
+		_, _ = io.WriteString(c.out, "\r"+ansi.EraseLineRight)
+	}
 	if !strings.HasSuffix(block, "\n") {
 		block += "\n"
 	}
 	_, _ = c.w.WriteString(block)
+	if c.step != nil {
+		c.step.drawLocked()
+	}
 }
 
 // Line writes one status line.
@@ -132,8 +141,11 @@ func (c *Console) Line(st Status, label string, fields ...Field) {
 	c.Print(c.renderer.Line(st, label, fields...))
 }
 
-// Close releases the stream. Every root command defers it.
+// Close ends any live step and restores the cursor. Defer it in every command.
 func (c *Console) Close() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
+	if c.step != nil {
+		c.step.stopLocked()
+	}
 }

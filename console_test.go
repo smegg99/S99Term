@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/charmbracelet/colorprofile"
 	"github.com/charmbracelet/x/ansi"
@@ -29,12 +30,16 @@ func testConsole(t *testing.T, profile colorprofile.Profile) (*s99term.Console, 
 	t.Helper()
 	out := &bytes.Buffer{}
 	off := false
+	// Step.End measures its own duration, so the clock has to be predictable.
+	// Every reading is 1.5s after the one before it.
+	clock := time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)
 	return s99term.New(s99term.Options{
 		Out:     out,
 		Env:     []string{"LANG=C"},
 		Words:   words(),
 		Profile: profile,
 		Animate: &off,
+		Now:     func() time.Time { clock = clock.Add(1500 * time.Millisecond); return clock },
 	}), out
 }
 
@@ -73,5 +78,40 @@ func TestNoTTYStripsEveryEscape(t *testing.T) {
 
 	if got := out.String(); strings.Contains(got, "\x1b") {
 		t.Errorf("an escape survived NoTTY: %q", got)
+	}
+}
+
+// A step whose console cannot animate prints only the finished line.
+func TestNonAnimatedStepPrintsOnlyTheResult(t *testing.T) {
+	c, out := testConsole(t, colorprofile.NoTTY)
+	step := c.Begin("building")
+	step.End(s99term.StatusOK)
+
+	got := out.String()
+	if strings.Contains(got, "\r") || strings.Contains(got, "\x1b") {
+		t.Errorf("a non-animated step wrote control bytes: %q", got)
+	}
+	if want := "[+] ok       building  took=1.5s\n"; got != want {
+		t.Errorf("got %q, want %q", got, want)
+	}
+}
+
+// The ticker and End share a mutex. Run under -race.
+func TestStepCyclesAreRaceFree(t *testing.T) {
+	out := &bytes.Buffer{}
+	on := true
+	c := s99term.New(s99term.Options{
+		Out: out, Env: []string{"LANG=C"}, Words: words(),
+		Profile: colorprofile.ASCII, Animate: &on,
+	})
+	defer c.Close()
+
+	for i := 0; i < 300; i++ {
+		step := c.BeginCounted("building", 4)
+		time.Sleep(time.Duration(i%20) * time.Millisecond / 10)
+		step.Advance(1)
+		c.Line(s99term.StatusWarning, "a log record arrived mid-step")
+		step.Advance(3)
+		step.End(s99term.StatusOK)
 	}
 }
