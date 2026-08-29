@@ -11,6 +11,7 @@ import (
 	"github.com/charmbracelet/colorprofile"
 	"github.com/charmbracelet/x/ansi"
 
+	"github.com/smegg99/s99logger"
 	"github.com/smegg99/s99term"
 )
 
@@ -113,5 +114,21 @@ func TestStepCyclesAreRaceFree(t *testing.T) {
 		c.Line(s99term.StatusWarning, "a log record arrived mid-step")
 		step.Advance(3)
 		step.End(s99term.StatusOK)
+	}
+}
+
+// A log record that arrives while a step is live appears above the spinner, and
+// the step's own result is printed by End, not by the logger.
+func TestSinkWritesThroughTheConsole(t *testing.T) {
+	c, out := testConsole(t, colorprofile.ASCII)
+	log := s99logger.New(c.Sink(), s99logger.Options{Service: "test"})
+	log.Warn(s99logger.NewEvent("stale_key", s99logger.String("locale", "cs")))
+
+	got := ansi.Strip(out.String())
+	if !strings.HasPrefix(got, "[!] warning") {
+		t.Errorf("got %q, want it to start with %q", got, "[!] warning")
+	}
+	if !strings.Contains(got, "locale=cs") {
+		t.Errorf("got %q, want it to carry the attr", got)
 	}
 }
