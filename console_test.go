@@ -132,3 +132,23 @@ func TestSinkWritesThroughTheConsole(t *testing.T) {
 		t.Errorf("got %q, want it to carry the attr", got)
 	}
 }
+
+// The progress bar follows the charset axis, like the spinner.
+func TestAsciiCharsetDrawsAnAsciiBar(t *testing.T) {
+	out := &bytes.Buffer{}
+	on := true
+	c := s99term.New(s99term.Options{
+		Out: out, Env: []string{"LANG=C"}, Words: words(),
+		Profile: colorprofile.ASCII, Animate: &on,
+	})
+	step := c.BeginCounted("building", 4)
+	step.Advance(2)
+	step.End(s99term.StatusOK)
+	c.Close()
+
+	for i, b := range out.Bytes() {
+		if b > 0x7f {
+			t.Fatalf("byte %d is %#x; an ASCII charset wrote a multi-byte glyph: %q", i, b, out.String())
+		}
+	}
+}

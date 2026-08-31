@@ -60,6 +60,11 @@ func (c *Console) begin(label string, total int) *Step {
 			progress.WithoutPercentage(),
 		)
 		s.bar.EmptyColor = c.renderer.Styles.Palette.Line
+		// The bar follows the charset axis for the same reason the spinner
+		// does: its default fill is U+258C and U+2591.
+		if !c.charset {
+			s.bar.Full, s.bar.Empty = '#', '-'
+		}
 		s.bar.SetWidth(barWidth(c.width))
 	}
 	s.stop = make(chan struct{})
