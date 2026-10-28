@@ -23,7 +23,7 @@ func main() {
 
 	log := s99logger.New(c.Sink(), s99logger.Options{Service: "demo"})
 
-	c.Print(c.Renderer().Title("s99term " + s99term.Version()))
+	c.Print(c.Renderer().Title("s99term " + s99term.Declared()))
 
 	build := c.BeginCounted("building locales", 4)
 	for i := 1; i <= 4; i++ {

@@ -130,8 +130,7 @@ s99term 1.0.0
 
 `VERSION` holds `MAJOR.MINOR.PATCH` and is the only place the version is
 written. `version.go` embeds it. `Declared()` returns exactly that string.
-`Version()` adds the commit when the build carries VCS stamps, so it returns
-`1.0.0`, `1.0.0 (a22e8d3)` or `1.0.0 (a22e8d3, dirty)`. A tagged commit whose
+A tagged commit whose
 `VERSION` disagrees with its tag fails `TestTagAgreesWithVersionFile`.
 
 ## License

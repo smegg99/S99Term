@@ -27,24 +27,6 @@ func TestDeclaredComesFromTheVersionFile(t *testing.T) {
 	}
 }
 
-// The three shapes a version can print. A test binary carries no VCS stamps, so
-// Version() itself can only ever exercise the first of them.
-func TestVersionShapes(t *testing.T) {
-	for _, c := range []struct {
-		rev   string
-		dirty bool
-		want  string
-	}{
-		{rev: "", dirty: false, want: "1.0.0"},
-		{rev: "a22e8d3", dirty: false, want: "1.0.0 (a22e8d3)"},
-		{rev: "a22e8d3", dirty: true, want: "1.0.0 (a22e8d3, dirty)"},
-	} {
-		if got := format("1.0.0", c.rev, c.dirty); got != c.want {
-			t.Errorf("format(1.0.0, %q, %v) = %q, want %q", c.rev, c.dirty, got, c.want)
-		}
-	}
-}
-
 // A tag is what `go get ...@v1.0.0` resolves, so a tagged commit whose VERSION
 // says something else ships a module that misreports itself.
 func TestTagAgreesWithVersionFile(t *testing.T) {
