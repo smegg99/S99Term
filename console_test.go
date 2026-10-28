@@ -152,3 +152,50 @@ func TestAsciiCharsetDrawsAnAsciiBar(t *testing.T) {
 		}
 	}
 }
+
+// A second End on the same step prints nothing.
+func TestStepEndsOnce(t *testing.T) {
+	c, out := testConsole(t, colorprofile.NoTTY)
+	step := c.Begin("building")
+	step.End(s99term.StatusOK)
+	step.End(s99term.StatusFailed)
+	if got := strings.Count(out.String(), "\n"); got != 1 {
+		t.Fatalf("End printed %d lines, want 1:\n%s", got, out.String())
+	}
+}
+
+// A nil Env reads the process environment.
+func TestNilEnvReadsTheProcessEnvironment(t *testing.T) {
+	t.Setenv("LC_ALL", "")
+	t.Setenv("LC_CTYPE", "")
+	t.Setenv("LANG", "pl_PL.UTF-8")
+	if !s99term.New(s99term.Options{Out: &bytes.Buffer{}}).Charset() {
+		t.Fatal("a UTF-8 LANG was not read")
+	}
+	t.Setenv("LANG", "C")
+	if s99term.New(s99term.Options{Out: &bytes.Buffer{}}).Charset() {
+		t.Fatal("LANG=C read as UTF-8")
+	}
+}
+
+// A log line keeps the record's time, service, and whether it was debug.
+func TestSinkKeepsTimeServiceAndDebug(t *testing.T) {
+	c, out := testConsole(t, colorprofile.NoTTY)
+	at := time.Date(2026, 1, 1, 9, 30, 5, 0, time.Local)
+	log := s99logger.New(c.Sink(), s99logger.Options{Service: "api", Clock: func() time.Time { return at }})
+	log.Debug(s99logger.NewEvent("cache_miss"))
+	log.Info(s99logger.NewEvent("ready"))
+
+	lines := strings.Split(strings.TrimSpace(out.String()), "\n")
+	if len(lines) != 2 {
+		t.Fatalf("got %d lines:\n%s", len(lines), out.String())
+	}
+	for _, want := range []string{"cache_miss", "level=debug", "service=api", "time=09:30:05"} {
+		if !strings.Contains(lines[0], want) {
+			t.Errorf("debug line %q lacks %q", lines[0], want)
+		}
+	}
+	if strings.Contains(lines[1], "level=") {
+		t.Errorf("info line %q names its level", lines[1])
+	}
+}

@@ -18,7 +18,7 @@ import (
 type Options struct {
 	// Out receives every line. Pass os.Stderr to keep stdout for machine output.
 	Out io.Writer
-	// Env feeds colour and charset detection, usually os.Environ().
+	// Env feeds colour and charset detection. Nil reads os.Environ().
 	Env []string
 	// Words names each state. A state left out prints its glyph alone.
 	Words Words
@@ -56,6 +56,9 @@ func New(opts Options) *Console {
 		out = os.Stderr
 	}
 	env := opts.Env
+	if env == nil {
+		env = os.Environ()
+	}
 	now := opts.Now
 	if now == nil {
 		now = time.Now

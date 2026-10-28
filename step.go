@@ -24,6 +24,7 @@ type Step struct {
 	total   int
 	done    int
 	stop    chan struct{}
+	ended   bool
 }
 
 // Begin starts a step whose end is not countable.
@@ -149,10 +150,14 @@ func (s *Step) stopLocked() {
 	_, _ = io.WriteString(s.c.out, "\r"+ansi.EraseLineRight+ansi.ShowCursor)
 }
 
-// End closes the step and leaves exactly one finished line behind it.
+// End closes the step and leaves exactly one finished line behind it; a later End does nothing.
 func (s *Step) End(st Status, fields ...Field) {
 	s.c.mu.Lock()
 	defer s.c.mu.Unlock()
+	if s.ended {
+		return
+	}
+	s.ended = true
 	if s.c.step == s {
 		s.stopLocked()
 	}
