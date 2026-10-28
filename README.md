@@ -109,8 +109,8 @@ This is what `just demo` writes to stderr with `LANG=C` and stderr piped, so
 every axis is at its fallback:
 
 ```text
-s99term 1.0.0
-[!] warning  stale_key  locale=cs count=3
+s99term 1.1.0
+[!] warning  stale_key  locale=cs count=3 service=demo time=21:04:13
 [+] ok       building locales  keys=412 took=1.001s
 [~] stale    checking drift  locale=cs took=501ms
 [x] failed   building cs  reason="missing catalog"
