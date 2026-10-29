@@ -7,9 +7,9 @@ import "strings"
 // utf8Vars is POSIX precedence: the first one set and non-empty decides.
 var utf8Vars = [...]string{"LC_ALL", "LC_CTYPE", "LANG"}
 
-// UTF8 reports whether the locale says the terminal can draw multi-byte glyphs.
+// utf8 reports whether the locale says the terminal can draw multi-byte glyphs.
 // Nothing set means no, since an ASCII border always renders.
-func UTF8(env []string) bool {
+func utf8(env []string) bool {
 	for _, name := range utf8Vars {
 		value, ok := lookup(env, name)
 		if !ok || value == "" {

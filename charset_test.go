@@ -1,11 +1,9 @@
 // charset_test.go
 
-package s99term_test
+package s99term
 
 import (
 	"testing"
-
-	"github.com/smegg99/s99term"
 )
 
 func TestUTF8ReadsThePosixLocalePrecedence(t *testing.T) {
@@ -30,7 +28,7 @@ func TestUTF8ReadsThePosixLocalePrecedence(t *testing.T) {
 		{"unrelated variable ignored", []string{"LANGUAGE=pl_PL.UTF-8"}, false},
 	} {
 		t.Run(c.name, func(t *testing.T) {
-			if got := s99term.UTF8(c.env); got != c.want {
+			if got := utf8(c.env); got != c.want {
 				t.Errorf("UTF8(%v) = %v, want %v", c.env, got, c.want)
 			}
 		})

@@ -1,23 +1,21 @@
 // render_test.go
 
-package s99term_test
+package s99term
 
 import (
 	"strings"
 	"testing"
 
 	"github.com/charmbracelet/x/ansi"
-
-	"github.com/smegg99/s99term"
 )
 
 // Every glyph is three cells, so the label column starts at the same index on
 // every line whatever the state is.
 func TestEveryGlyphIsThreeCells(t *testing.T) {
-	for _, st := range []s99term.Status{
-		s99term.StatusOK, s99term.StatusFailed, s99term.StatusSkipped,
-		s99term.StatusWaiting, s99term.StatusRunning, s99term.StatusWarning,
-		s99term.StatusStale, s99term.StatusNone,
+	for _, st := range []Status{
+		StatusOK, StatusFailed, StatusSkipped,
+		StatusWaiting, StatusRunning, StatusWarning,
+		StatusStale, StatusNone,
 	} {
 		if got := ansi.StringWidth(st.Glyph()); got != 3 {
 			t.Errorf("Status(%d).Glyph() = %q, width %d, want 3", st, st.Glyph(), got)
@@ -26,11 +24,11 @@ func TestEveryGlyphIsThreeCells(t *testing.T) {
 }
 
 func TestGlyphsAreDistinctExceptNone(t *testing.T) {
-	seen := map[string]s99term.Status{}
-	for _, st := range []s99term.Status{
-		s99term.StatusOK, s99term.StatusFailed, s99term.StatusSkipped,
-		s99term.StatusWaiting, s99term.StatusRunning, s99term.StatusWarning,
-		s99term.StatusStale,
+	seen := map[string]Status{}
+	for _, st := range []Status{
+		StatusOK, StatusFailed, StatusSkipped,
+		StatusWaiting, StatusRunning, StatusWarning,
+		StatusStale,
 	} {
 		if prev, dup := seen[st.Glyph()]; dup {
 			t.Errorf("Status(%d) and Status(%d) share glyph %q", prev, st, st.Glyph())
@@ -40,8 +38,8 @@ func TestGlyphsAreDistinctExceptNone(t *testing.T) {
 }
 
 func TestUnicodeDecidesTheBorderAndNotTheColour(t *testing.T) {
-	unicode := s99term.NewStyles(true)
-	ascii := s99term.NewStyles(false)
+	unicode := newStyles(true)
+	ascii := newStyles(false)
 
 	if unicode.Border.Top == ascii.Border.Top {
 		t.Fatal("unicode and ascii styles share a border")
@@ -57,26 +55,26 @@ func TestUnicodeDecidesTheBorderAndNotTheColour(t *testing.T) {
 // A Polish catalog has longer words than an English one, so the column widens
 // rather than pushing the label out of line.
 func TestStatusWidthFollowsTheWidestWord(t *testing.T) {
-	english := s99term.Words{s99term.StatusOK: "ok", s99term.StatusWarning: "warning"}
-	polish := s99term.Words{s99term.StatusOK: "ok", s99term.StatusWarning: "ostrzezenie"}
+	english := Words{StatusOK: "ok", StatusWarning: "warning"}
+	polish := Words{StatusOK: "ok", StatusWarning: "ostrzezenie"}
 
-	if got := s99term.StatusWidth(english); got != 12 {
+	if got := statusWidth(english); got != 12 {
 		t.Errorf("StatusWidth(english) = %d, want the 12 floor", got)
 	}
-	if got, want := s99term.StatusWidth(polish), 3+1+11+1; got != want {
+	if got, want := statusWidth(polish), 3+1+11+1; got != want {
 		t.Errorf("StatusWidth(polish) = %d, want %d", got, want)
 	}
 }
 
 func TestLineIsGlyphWordAndLabelInFixedColumns(t *testing.T) {
-	r := s99term.NewRenderer(s99term.NewStyles(false), s99term.Words{
-		s99term.StatusOK:      "ok",
-		s99term.StatusFailed:  "failed",
-		s99term.StatusWarning: "warning",
+	r := NewRenderer(newStyles(false), Words{
+		StatusOK:      "ok",
+		StatusFailed:  "failed",
+		StatusWarning: "warning",
 	})
 
-	ok := ansi.Strip(r.Line(s99term.StatusOK, "built pl", s99term.F("keys", "412")))
-	failed := ansi.Strip(r.Line(s99term.StatusFailed, "built pl"))
+	ok := ansi.Strip(r.Line(StatusOK, "built pl", F("keys", "412")))
+	failed := ansi.Strip(r.Line(StatusFailed, "built pl"))
 
 	if want := "[+] ok       built pl  keys=412"; ok != want {
 		t.Errorf("Line ok = %q, want %q", ok, want)
@@ -88,7 +86,7 @@ func TestLineIsGlyphWordAndLabelInFixedColumns(t *testing.T) {
 
 // A value with a newline would break the one-line redraw, which clears one line.
 func TestFieldsQuoteWhitespaceAndQuotes(t *testing.T) {
-	r := s99term.NewRenderer(s99term.NewStyles(false), s99term.Words{})
+	r := NewRenderer(newStyles(false), Words{})
 
 	for _, c := range []struct{ in, want string }{
 		{"412", "n=412"},
@@ -96,7 +94,7 @@ func TestFieldsQuoteWhitespaceAndQuotes(t *testing.T) {
 		{"line\nbreak", `n="line\nbreak"`},
 		{`say "hi"`, `n="say \"hi\""`},
 	} {
-		if got := ansi.Strip(r.Fields(s99term.F("n", c.in))); got != c.want {
+		if got := ansi.Strip(r.Fields(F("n", c.in))); got != c.want {
 			t.Errorf("Fields(%q) = %q, want %q", c.in, got, c.want)
 		}
 	}

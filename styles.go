@@ -11,8 +11,8 @@ import (
 	"github.com/charmbracelet/x/ansi"
 )
 
-// Accent is the only fixed colour; the rest follow the terminal theme.
-const Accent = "#c73378"
+// accent is the only fixed colour; the rest follow the terminal theme.
+const accent = "#c73378"
 
 // Palette holds every colour. All but Accent are ANSI indices, so no background
 // query is needed.
@@ -45,11 +45,11 @@ type Styles struct {
 	StatusWidth int
 }
 
-// NewStyles builds the palette. unicode is the charset answer from UTF8, not
+// newStyles builds the palette. unicode is the charset answer from UTF8, not
 // the colour profile: a 16-colour UTF-8 terminal still draws box borders.
-func NewStyles(unicode bool) Styles {
+func newStyles(unicode bool) Styles {
 	palette := Palette{
-		Accent: lipgloss.Color(Accent),
+		Accent: lipgloss.Color(accent),
 		Muted:  lipgloss.Color("8"),
 		Line:   lipgloss.Color("8"),
 		Good:   lipgloss.Color("2"),
@@ -82,9 +82,9 @@ func NewStyles(unicode bool) Styles {
 	}
 }
 
-// StatusStyle is the colour for st. The glyph and the word carry the meaning on
+// statusStyle is the colour for st. The glyph and the word carry the meaning on
 // their own, so this only reinforces them.
-func (s Styles) StatusStyle(st Status) lipgloss.Style {
+func (s Styles) statusStyle(st Status) lipgloss.Style {
 	switch st {
 	case StatusOK:
 		return s.Good
@@ -114,9 +114,9 @@ func (s Styles) Table() *table.Table {
 		})
 }
 
-// StatusWidth is the column the label starts in: the glyph, a space, the widest
+// statusWidth is the column the label starts in: the glyph, a space, the widest
 // word and a space, with a floor so a short catalog still lines up.
-func StatusWidth(words Words) int {
+func statusWidth(words Words) int {
 	widest := 0
 	for _, word := range words {
 		if w := ansi.StringWidth(word); w > widest {

@@ -84,12 +84,12 @@ func New(opts Options) *Console {
 		animate = *opts.Animate
 	}
 
-	charset := UTF8(env)
+	charset := utf8(env)
 	if opts.Charset != nil {
 		charset = *opts.Charset
 	}
 
-	styles := NewStyles(charset)
+	styles := newStyles(charset)
 	return &Console{
 		// Build the writer from the resolved profile, not from env:
 		// colorprofile.NewWriter re-detects and would discard an override.
@@ -110,9 +110,6 @@ func (c *Console) Styles() Styles { return c.renderer.Styles }
 
 // Width returns the terminal width, or 80 when the stream has none.
 func (c *Console) Width() int { return c.width }
-
-// Animated reports whether this stream can carry a spinner.
-func (c *Console) Animated() bool { return c.animate }
 
 func (c *Console) Charset() bool { return c.charset }
 

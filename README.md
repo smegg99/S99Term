@@ -40,7 +40,7 @@ back on its own. None of them costs a terminal round trip.
 |---|---|---|---|
 | Colour | `colorprofile.Detect(Out, Env)` in `console.go` | `Options.Profile` | `colorprofile.Writer` strips the escapes the stream cannot carry; the glyph and the word stay |
 | Animation | whether `Out` is an `*os.File` on a terminal with a width | `Options.Animate` | `Step` prints nothing until `End`, which writes one finished line |
-| Charset | `UTF8` in `charset.go`, reading `LC_ALL`, `LC_CTYPE` and `LANG` in that order | `Options.Charset` | `NewStyles` picks `lipgloss.ASCIIBorder`, `Console.frames` picks `spinner.Line`, and a counted step's bar fills with `#` and `-` |
+| Charset | `utf8` in `charset.go`, reading `LC_ALL`, `LC_CTYPE` and `LANG` in that order | `Options.Charset` | the styles pick `lipgloss.ASCIIBorder`, `Console.frames` picks `spinner.Line`, and a counted step's bar fills with `#` and `-` |
 
 Colour and charset are detected separately. A 16-colour UTF-8 terminal draws
 box borders, and a truecolor terminal under `LANG=C` does not, because it cannot

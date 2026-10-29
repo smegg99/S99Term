@@ -34,13 +34,13 @@ type Renderer struct {
 
 // NewRenderer pairs a palette with the catalog words for each state.
 func NewRenderer(styles Styles, words Words) Renderer {
-	styles.StatusWidth = StatusWidth(words)
+	styles.StatusWidth = statusWidth(words)
 	return Renderer{Styles: styles, Words: words}
 }
 
 // StatusCell is the glyph and the word, padded to the shared column width.
 func (r Renderer) StatusCell(st Status) string {
-	style := r.Styles.StatusStyle(st)
+	style := r.Styles.statusStyle(st)
 	cell := lipgloss.JoinHorizontal(lipgloss.Top,
 		style.Render(st.Glyph()),
 		" ",
