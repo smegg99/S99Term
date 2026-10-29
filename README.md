@@ -117,7 +117,7 @@ s99term 1.1.0
 [-] skipped  desktop target not configured
 [ ] waiting  queued behind the sync lock
 [*] running  watching for changes
-             catalog_loaded  locales=3
+             catalog_loaded  locales=3 service=demo time=21:04:16
 +-----------+--------+-------+
 | KEY       | LOCALE | STATE |
 +-----------+--------+-------+
