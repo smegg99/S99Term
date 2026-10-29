@@ -27,8 +27,7 @@ func TestDeclaredComesFromTheVersionFile(t *testing.T) {
 	}
 }
 
-// A tag is what `go get ...@v1.0.0` resolves, so a tagged commit whose VERSION
-// says something else ships a module that misreports itself.
+// A tagged commit whose VERSION disagrees ships a module that misreports itself.
 func TestTagAgreesWithVersionFile(t *testing.T) {
 	tag, ok := exactTag()
 	if !ok {
@@ -41,8 +40,7 @@ func TestTagAgreesWithVersionFile(t *testing.T) {
 	}
 }
 
-// exactTag returns the tag on HEAD, or false outside a git worktree or on an
-// untagged commit.
+// exactTag returns the tag on HEAD, or false outside a worktree or on an untagged commit.
 func exactTag() (string, bool) {
 	git, err := exec.LookPath("git")
 	if err != nil {

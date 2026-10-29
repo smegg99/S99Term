@@ -10,8 +10,7 @@ import (
 	"charm.land/lipgloss/v2"
 )
 
-// Field is one key and value appended to a line. The key is an identifier, like
-// an s99logger attr key, so it is never translated.
+// Field is a key and value after a line's label; the key is an identifier and never translated.
 type Field struct {
 	Key   string
 	Value string
@@ -25,8 +24,7 @@ func Dur(key string, d time.Duration) Field {
 	return Field{Key: key, Value: d.Round(time.Millisecond).String()}
 }
 
-// Renderer composes the strings. It holds no stream, so every function here is
-// testable without a terminal.
+// Renderer composes strings and holds no stream, so it is testable without a terminal.
 type Renderer struct {
 	Styles Styles
 	Words  Words
@@ -74,8 +72,7 @@ func (r Renderer) Line(st Status, label string, fields ...Field) string {
 // Title is a heading above a group of lines.
 func (r Renderer) Title(text string) string { return r.Styles.Title.Render(text) }
 
-// Frame is the live line while a step runs: spinner, label, and whatever the
-// step wants to show on the right, such as a progress bar.
+// Frame is a running step's line: spinner, label and a trailer such as a progress bar.
 func (r Renderer) Frame(spinner, label, trailer string) string {
 	cell := lipgloss.PlaceHorizontal(r.Styles.StatusWidth, lipgloss.Left,
 		lipgloss.JoinHorizontal(lipgloss.Top, r.Styles.Spinner.Render(spinner)))

@@ -14,8 +14,7 @@ import (
 // accent is the only fixed colour; the rest follow the terminal theme.
 const accent = "#c73378"
 
-// Palette holds every colour. All but Accent are ANSI indices, so no background
-// query is needed.
+// Palette holds every colour; all but Accent are ANSI indices, so no background query is needed.
 type Palette struct {
 	Accent color.Color
 	Muted  color.Color
@@ -45,8 +44,7 @@ type Styles struct {
 	StatusWidth int
 }
 
-// newStyles builds the palette. unicode is the charset answer from UTF8, not
-// the colour profile: a 16-colour UTF-8 terminal still draws box borders.
+// newStyles builds the styles from the charset, not the colour profile: 16-colour UTF-8 still draws box borders.
 func newStyles(unicode bool) Styles {
 	palette := Palette{
 		Accent: lipgloss.Color(accent),
@@ -82,8 +80,7 @@ func newStyles(unicode bool) Styles {
 	}
 }
 
-// statusStyle is the colour for st. The glyph and the word carry the meaning on
-// their own, so this only reinforces them.
+// statusStyle colours st; the glyph and word carry the meaning without it.
 func (s Styles) statusStyle(st Status) lipgloss.Style {
 	switch st {
 	case StatusOK:
@@ -114,8 +111,7 @@ func (s Styles) Table() *table.Table {
 		})
 }
 
-// statusWidth is the column the label starts in: the glyph, a space, the widest
-// word and a space, with a floor so a short catalog still lines up.
+// statusWidth is the label's column: glyph, space, widest word and space, with a floor.
 func statusWidth(words Words) int {
 	widest := 0
 	for _, word := range words {

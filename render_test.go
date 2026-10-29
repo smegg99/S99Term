@@ -9,8 +9,7 @@ import (
 	"github.com/charmbracelet/x/ansi"
 )
 
-// Every glyph is three cells, so the label column starts at the same index on
-// every line whatever the state is.
+// Every glyph is three cells, so the label column lines up whatever the state.
 func TestEveryGlyphIsThreeCells(t *testing.T) {
 	for _, st := range []Status{
 		StatusOK, StatusFailed, StatusSkipped,
@@ -52,8 +51,7 @@ func TestUnicodeDecidesTheBorderAndNotTheColour(t *testing.T) {
 	}
 }
 
-// A Polish catalog has longer words than an English one, so the column widens
-// rather than pushing the label out of line.
+// Longer Polish words widen the status column instead of pushing the label out of line.
 func TestStatusWidthFollowsTheWidestWord(t *testing.T) {
 	english := Words{StatusOK: "ok", StatusWarning: "warning"}
 	polish := Words{StatusOK: "ok", StatusWarning: "ostrzezenie"}

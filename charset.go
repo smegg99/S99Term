@@ -7,8 +7,7 @@ import "strings"
 // utf8Vars is POSIX precedence: the first one set and non-empty decides.
 var utf8Vars = [...]string{"LC_ALL", "LC_CTYPE", "LANG"}
 
-// utf8 reports whether the locale says the terminal can draw multi-byte glyphs.
-// Nothing set means no, since an ASCII border always renders.
+// utf8 reports whether the locale promises multi-byte glyphs; nothing set means no.
 func utf8(env []string) bool {
 	for _, name := range utf8Vars {
 		value, ok := lookup(env, name)
@@ -20,8 +19,7 @@ func utf8(env []string) bool {
 	return false
 }
 
-// isUTF8 reads the codeset between the dot and any @modifier, so
-// sr_RS.UTF-8@latin answers the same as sr_RS.UTF-8.
+// isUTF8 reads the codeset between the dot and any @modifier.
 func isUTF8(value string) bool {
 	_, codeset, ok := strings.Cut(value, ".")
 	if !ok {

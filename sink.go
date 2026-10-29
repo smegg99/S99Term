@@ -10,8 +10,7 @@ import (
 	"github.com/smegg99/s99logger"
 )
 
-// Sink returns an s99logger.Sink that renders records through the shared
-// styles. The logger keeps owning the event stream; this owns its presentation.
+// Sink returns an s99logger.Sink that renders records as status lines.
 func (c *Console) Sink() s99logger.Sink { return sink{c: c} }
 
 type sink struct{ c *Console }

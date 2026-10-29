@@ -32,8 +32,7 @@ type Options struct {
 	Now func() time.Time
 }
 
-// Console owns one output stream: its colour level, its charset, its width, and
-// the one live step that may be animating on it.
+// Console owns one stream: its colour level, charset, width and the one live step on it.
 type Console struct {
 	mu       sync.Mutex
 	out      io.Writer
@@ -115,8 +114,7 @@ func (c *Console) Charset() bool { return c.charset }
 
 func (c *Console) Profile() colorprofile.Profile { return c.profile }
 
-// Print writes one already-rendered block, downsampled for the stream. A live
-// step's frame is erased first and redrawn after, so the block is never torn.
+// Print writes one rendered block, erasing and redrawing a live step's frame around it.
 func (c *Console) Print(block string) {
 	c.mu.Lock()
 	defer c.mu.Unlock()

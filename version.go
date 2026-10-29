@@ -1,7 +1,6 @@
 // version.go
 
-// Package s99term is the terminal render layer for smegg99 command-line
-// programs.
+// Package s99term is the terminal render layer for smegg99 command-line programs.
 package s99term
 
 import (

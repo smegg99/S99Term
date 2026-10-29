@@ -117,8 +117,7 @@ func TestStepCyclesAreRaceFree(t *testing.T) {
 	}
 }
 
-// A log record that arrives while a step is live appears above the spinner, and
-// the step's own result is printed by End, not by the logger.
+// A record logged during a step appears above the spinner, and End prints the step's own result.
 func TestSinkWritesThroughTheConsole(t *testing.T) {
 	c, out := testConsole(t, colorprofile.ASCII)
 	log := s99logger.New(c.Sink(), s99logger.Options{Service: "test"})

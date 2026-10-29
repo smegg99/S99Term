@@ -13,8 +13,7 @@ import (
 	"github.com/charmbracelet/x/ansi"
 )
 
-// Step is one unit of work the reader waits on. On a terminal it animates one
-// inline line; on any other stream it prints nothing until it ends.
+// Step is one unit of work; it animates on a terminal and prints only its result elsewhere.
 type Step struct {
 	c       *Console
 	label   string
@@ -35,8 +34,7 @@ func (c *Console) BeginCounted(label string, total int) *Step {
 	return c.begin(label, total)
 }
 
-// frames picks the spinner the terminal can actually draw. MiniDot is braille,
-// which an ASCII terminal renders as replacement characters.
+// frames picks a spinner the charset can draw; braille shows as replacement characters in ASCII.
 func (c *Console) frames() spinner.Spinner {
 	if c.charset {
 		return spinner.MiniDot
@@ -87,8 +85,7 @@ func barWidth(width int) int {
 	return w
 }
 
-// run advances the spinner until the step ends. A late tick finds c.step != s
-// and repaints nothing, so End never waits on run.
+// run spins until the step ends; a late tick repaints nothing, so End never waits on it.
 func (s *Step) run() {
 	tick := time.NewTicker(s.sp.Spinner.FPS)
 	defer tick.Stop()
